@@ -13,7 +13,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.models import auth
 
 from django.contrib.auth import authenticate, login, logout
-
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 
@@ -121,11 +121,36 @@ def my_login(request):
     return render(request, 'account/my-login.html', context)
 
 
-def user_logout(request):
-    
-    auth.logout(request)
 
-    return redirect('store')
+# logout
+
+def user_logout(request):
+
+    try:
+
+        for key in list(request.session.keys()):
+
+            if key == 'session_key':
+
+                continue
+
+            else:
+
+                del request.session[key]
+
+
+    except KeyError:
+
+        pass
+
+
+    messages.success(request, "Logout success")
+
+    return redirect("store")
+
+
+
+
 
 @login_required(login_url='my-login')
 def dashboard(request):
@@ -134,7 +159,7 @@ def dashboard(request):
 
 
 @login_required(login_url='my-login')
-def profile_management(request):
+def profile_management(request):    
 
     # Updating our user's username and email
 
@@ -148,17 +173,15 @@ def profile_management(request):
 
             user_form.save()
 
+            messages.info(request, "Update success!")
+
             return redirect('dashboard')
-        
 
+   
 
-    context = {
-        'user_form': user_form
-    }
+    context = {'user_form':user_form}
 
-
-
-    return render(request, 'account/profile-management.html', context)
+    return render(request, 'account/profile-management.html', context=context)
 
 
 @login_required(login_url='my-login')
@@ -170,6 +193,11 @@ def delete_account(request):
 
         user.delete()
 
+
+        messages.error(request, "Account deleted")
+
+
         return redirect('store')
+
 
     return render(request, 'account/delete-account.html')
