@@ -40,8 +40,9 @@ INSTALLED_APPS = [
 
     'store',
     'cart',
-    'mathfilters',
+    'payment',
     'account',
+    'mathfilters',
     'crispy_forms',
 ]
 
